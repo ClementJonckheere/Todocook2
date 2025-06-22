@@ -3,6 +3,9 @@ from sqlalchemy.orm import relationship
 
 from db.base import Base
 
+# Import model referenced in relationships so SQLAlchemy registers it
+from .recipe_suggestion import RecipeSuggestion  # noqa: F401
+
 class Recipe(Base):
     __tablename__ = "recipes"
 

@@ -3,6 +3,9 @@ from sqlalchemy.orm import relationship
 
 from db.base import Base
 
+# Import models referenced in relationships so SQLAlchemy can resolve them
+from .recipe_suggestion import RecipeSuggestion  # noqa: F401
+
 class User(Base):
     __tablename__ = "users"
 
