@@ -1,14 +1,31 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
+from sqlalchemy.orm import Session
 
 from utils.nutrition import search_ingredient
+from models.ingredient import Ingredient as IngredientModel
+from api.deps import get_db
 
 router = APIRouter()
 
+@router.post("/from-api")
+def import_ingredient(name: str, db: Session = Depends(get_db)):
+    existing = db.query(IngredientModel).filter(IngredientModel.name.ilike(name)).first()
+    if existing:
+        return existing
 
-@router.get("/search")
-def search(name: str):
-    """Search nutrition info for an ingredient by name."""
-    try:
-        return search_ingredient(name)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    data = search_ingredient(name)
+    if not data:
+        raise HTTPException(status_code=404, detail="Ingredient not found")
+
+    nutriments = data.get("nutriments", {})
+    ing = IngredientModel(
+        name=data["name"],
+        calories=nutriments.get("energy-kcal_100g"),
+        proteins=nutriments.get("proteins_100g"),
+        carbs=nutriments.get("carbohydrates_100g"),
+        fats=nutriments.get("fat_100g"),
+    )
+    db.add(ing)
+    db.commit()
+    db.refresh(ing)
+    return ing

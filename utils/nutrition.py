@@ -12,7 +12,7 @@ import requests
 DATA_DIR = Path("data")
 
 
-def search_ingredient(name: str) -> Dict:
+def search_ingredient(name: str, timeout: int = 10) -> Dict:
     """Query the OpenFoodFacts API for a product and return its nutriments."""
     url = "https://world.openfoodfacts.org/cgi/search.pl"
     params = {
@@ -21,8 +21,11 @@ def search_ingredient(name: str) -> Dict:
         "action": "process",
         "json": 1,
     }
-    response = requests.get(url, params=params, timeout=10)
-    response.raise_for_status()
+    try:
+        response = requests.get(url, params=params, timeout=timeout)
+        response.raise_for_status()
+    except requests.RequestException as exc:
+        raise RuntimeError(f"Failed to fetch nutrition data: {exc}")
     data = response.json()
     products = data.get("products") or []
     if not products:
