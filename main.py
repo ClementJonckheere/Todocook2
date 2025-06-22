@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from api.v1.users import router as users_router
 from api.v1.recipes import router as recipes_router
 from api.v1.ingredients import router as ingredients_router
+from models import user_ingredient, recipe_suggestion  # ensure tables are created
 from db.base import Base
 from db.session import engine
 

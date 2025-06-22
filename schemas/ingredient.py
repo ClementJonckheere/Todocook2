@@ -4,6 +4,10 @@ from pydantic import BaseModel
 class IngredientBase(BaseModel):
     name: str
     quantity: Optional[str] = None
+    calories: Optional[float] = None
+    proteins: Optional[float] = None
+    carbs: Optional[float] = None
+    fats: Optional[float] = None
 
 class IngredientCreate(IngredientBase):
     pass
