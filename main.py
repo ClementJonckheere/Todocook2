@@ -10,7 +10,6 @@ from db.session import engine
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Healthy Recipe API")
-app.include_router(api_router, prefix="/api/v1")
 
 
 app.include_router(users_router, prefix="/api/v1/users", tags=["Users"])
