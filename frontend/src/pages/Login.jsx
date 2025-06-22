@@ -11,6 +11,7 @@ export default function Login() {
         e.preventDefault();
         try {
             const res = await api.post("/users", { email, name });
+            localStorage.setItem("userId", res.data.id);
             setMessage("Utilisateur créé : " + res.data.name);
         } catch (err) {
             setMessage("Erreur : " + err.response?.data?.detail || err.message);
