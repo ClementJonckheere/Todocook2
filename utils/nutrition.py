@@ -1,3 +1,7 @@
+"""Nutrition related helper functions."""
+
+# TODO: integrate with nutrition data provider APIs
+
 import json
 from pathlib import Path
 from typing import Dict
