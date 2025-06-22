@@ -2,6 +2,10 @@ from fastapi import FastAPI
 
 from api.v1.users import router as users_router
 from api.v1.recipes import router as recipes_router
+from db.base import Base
+from db.session import engine
+
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Healthy Recipe API")
 
