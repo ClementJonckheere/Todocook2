@@ -1,10 +1,12 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../api";
 
 export default function CreateRecipe() {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [message, setMessage] = useState("");
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -13,6 +15,7 @@ export default function CreateRecipe() {
             setMessage("Recette créée");
             setTitle("");
             setDescription("");
+            navigate("/recipes");
         } catch (err) {
             setMessage(err.response?.data?.detail || err.message);
         }
