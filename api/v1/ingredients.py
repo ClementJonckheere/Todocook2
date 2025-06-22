@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from utils.nutrition import search_ingredient
 from models.ingredient import Ingredient as IngredientModel
 from api.deps import get_db
+from schemas.ingredient import Ingredient
 
 router = APIRouter()
 
@@ -28,4 +29,12 @@ def import_ingredient(name: str, db: Session = Depends(get_db)):
     db.add(ing)
     db.commit()
     db.refresh(ing)
+    return ing
+
+
+@router.get("/{ingredient_id}", response_model=Ingredient)
+def read_ingredient(ingredient_id: int, db: Session = Depends(get_db)):
+    ing = db.query(IngredientModel).get(ingredient_id)
+    if not ing:
+        raise HTTPException(status_code=404, detail="Ingredient not found")
     return ing
