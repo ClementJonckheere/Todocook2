@@ -1,11 +1,10 @@
-from typing import Optional
 from pydantic import BaseModel
 
 
 class UserIngredientBase(BaseModel):
     user_id: int
     ingredient_id: int
-    quantity: Optional[str] = None
+    quantity_grams: float
 
 
 class UserIngredientCreate(UserIngredientBase):
@@ -13,7 +12,5 @@ class UserIngredientCreate(UserIngredientBase):
 
 
 class UserIngredient(UserIngredientBase):
-    id: int
-
     class Config:
         from_attributes = True
