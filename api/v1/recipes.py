@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from api.deps import get_db
+from ml.recommender import suggest_recipes
 from models.ingredient import Ingredient as IngredientModel
 from models.recipe import Recipe as RecipeModel
 from schemas.recipe import Recipe, RecipeCreate
@@ -25,6 +26,12 @@ def create_recipe(recipe: RecipeCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(db_recipe)
     return db_recipe
+
+
+@router.get("/suggested", response_model=List[Recipe])
+def suggested_recipes(user_id: int, db: Session = Depends(get_db)):
+    """Return recipes recommended for the given user."""
+    return suggest_recipes(user_id, db)
 
 
 @router.get("/{recipe_id}", response_model=Recipe)
