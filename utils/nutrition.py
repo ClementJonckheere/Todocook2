@@ -6,10 +6,30 @@ import json
 from pathlib import Path
 from typing import Dict
 
-import requests
+try:  # pragma: no cover - optional dependency
+    import requests
+except Exception:  # pragma: no cover - requests may be unavailable
+    requests = None
+
+import urllib.parse
+import urllib.request
 
 
 DATA_DIR = Path("data")
+
+
+def _fetch_json(url: str, params: Dict, timeout: int) -> Dict:
+    """Return JSON from HTTP GET using requests or urllib."""
+    if requests is not None:
+        response = requests.get(url, params=params, timeout=timeout)
+        response.raise_for_status()
+        return response.json()
+
+    query = urllib.parse.urlencode(params)
+    with urllib.request.urlopen(f"{url}?{query}", timeout=timeout) as resp:
+        if resp.status >= 400:
+            raise RuntimeError(f"HTTP {resp.status}")
+        return json.loads(resp.read().decode())
 
 
 def search_ingredient(name: str, timeout: int = 10) -> Dict:
@@ -22,11 +42,10 @@ def search_ingredient(name: str, timeout: int = 10) -> Dict:
         "json": 1,
     }
     try:
-        response = requests.get(url, params=params, timeout=timeout)
-        response.raise_for_status()
-    except requests.RequestException as exc:
+        data = _fetch_json(url, params, timeout)
+    except Exception as exc:  # pragma: no cover - network failures
         raise RuntimeError(f"Failed to fetch nutrition data: {exc}")
-    data = response.json()
+
     products = data.get("products") or []
     if not products:
         return {}
