@@ -11,3 +11,9 @@ class User(Base):
     name = Column(String, nullable=False)
 
     recipes = relationship("Recipe", back_populates="owner")
+    pantry = relationship(
+        "UserIngredient", back_populates="user", cascade="all, delete-orphan"
+    )
+    suggestions = relationship(
+        "RecipeSuggestion", back_populates="user", cascade="all, delete-orphan"
+    )

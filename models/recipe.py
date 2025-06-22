@@ -15,3 +15,6 @@ class Recipe(Base):
     ingredients = relationship(
         "Ingredient", back_populates="recipe", cascade="all, delete-orphan"
     )
+    suggestions = relationship(
+        "RecipeSuggestion", back_populates="recipe", cascade="all, delete-orphan"
+    )
