@@ -1,51 +1,43 @@
-(function(){
-  window.Login = function Login() {
-    const _React = React;
-    const useState = _React.useState;
+// src/pages/Login.jsx
+import { useState } from "react";
+import api from "../api";
 
-    const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
-    const [message, setMessage] = useState('');
+export default function Login() {
+    const [email, setEmail] = useState("");
+    const [name, setName] = useState("");
+    const [message, setMessage] = useState("");
 
-    function handleSubmit(e){
-      e.preventDefault();
-      fetch('/api/v1/users', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name, email: email })
-      })
-        .then(function(r){ return r.json(); })
-        .then(function(){
-          setMessage('Utilisateur cr\u00e9\u00e9');
-          setName('');
-          setEmail('');
-        })
-        .catch(function(err){
-          console.error('Failed to register', err);
-          setMessage('Erreur lors de l\u2019inscription');
-        });
-    }
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const res = await api.post("/users", { email, name });
+            setMessage("Utilisateur créé : " + res.data.name);
+        } catch (err) {
+            setMessage("Erreur : " + err.response?.data?.detail || err.message);
+        }
+    };
 
-    return _React.createElement('div', null,
-      _React.createElement('h2', null, 'Connexion / Inscription'),
-      _React.createElement('form', { onSubmit: handleSubmit },
-        _React.createElement('div', null,
-          _React.createElement('input', {
-            value: name,
-            placeholder: 'Nom',
-            onChange: function(e){ setName(e.target.value); }
-          })
-        ),
-        _React.createElement('div', null,
-          _React.createElement('input', {
-            value: email,
-            placeholder: 'Email',
-            onChange: function(e){ setEmail(e.target.value); }
-          })
-        ),
-        _React.createElement('button', { type: 'submit' }, 'Envoyer')
-      ),
-      message && _React.createElement('p', null, message)
+    return (
+        <div>
+            <h2>Créer un utilisateur</h2>
+            <form onSubmit={handleSubmit}>
+                <input
+                    type="email"
+                    placeholder="Adresse email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                />
+                <input
+                    type="text"
+                    placeholder="Nom"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                />
+                <button type="submit">Envoyer</button>
+            </form>
+            <p>{message}</p>
+        </div>
     );
-  }
-})();
+}

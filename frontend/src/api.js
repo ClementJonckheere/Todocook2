@@ -1,24 +1,11 @@
-(function(){
-  const BASE_URL = '/api/v1';
+// src/api.js
+import axios from "axios";
 
-  function request(path, options) {
-    return fetch(BASE_URL + path, Object.assign({
-      headers: { 'Content-Type': 'application/json' }
-    }, options)).then(function(res){
-      if(!res.ok) { throw new Error('API request failed'); }
-      return res.json();
-    });
-  }
+const api = axios.create({
+    baseURL: "http://127.0.0.1:8000/api/v1", // L'URL de ton backend FastAPI
+    headers: {
+        "Content-Type": "application/json",
+    },
+});
 
-  window.api = {
-    listRecipes: function() {
-      return request('/recipes');
-    },
-    createRecipe: function(data) {
-      return request('/recipes', { method: 'POST', body: JSON.stringify(data) });
-    },
-    getPantry: function(userId) {
-      return request('/users/' + userId + '/pantry');
-    }
-  };
-})();
+export default api;

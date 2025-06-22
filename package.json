@@ -1,0 +1,13 @@
+{
+  "name": "todocook",
+  "version": "1.0.0",
+  "description": "Fullstack TodoCook App (FastAPI + Vite)",
+  "scripts": {
+    "frontend": "cd frontend && npm run dev",
+    "backend": "cd Backend/FastAPIProject && uvicorn main:app --reload",
+    "dev": "concurrently \"npm run backend\" \"npm run frontend\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}

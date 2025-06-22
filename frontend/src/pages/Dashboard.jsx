@@ -1,5 +1,5 @@
-(function(){
-  window.Dashboard = function Dashboard() {
-    return React.createElement('div', null, 'Tableau de bord utilisateur');
-  }
-})();
+function Dashboard() {
+    return <h2>Dashboard</h2>
+}
+export default Dashboard
+
