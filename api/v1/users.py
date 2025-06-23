@@ -20,11 +20,13 @@ def read_users(db: Session = Depends(get_db)):
 
 @router.post("/", response_model=User)
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
-    db_user = UserModel(**user.dict())
+    hashed = hash(user.password)  # ou une vraie fonction de hash (e.g. bcrypt.hashpw)
+    db_user = UserModel(email=user.email, username=user.username, hashed_password=hashed)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
     return db_user
+
 
 
 @router.get("/{user_id}", response_model=User)

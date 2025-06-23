@@ -3,18 +3,19 @@ from sqlalchemy.orm import relationship
 
 from db.base_class import Base
 
-# Import models referenced in relationships so SQLAlchemy can resolve them
-from .recipe_suggestion import RecipeSuggestion  # noqa: F401
-
 class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, index=True, nullable=False)
-    name = Column(String, nullable=True)
+    username = Column(String, nullable=False)
     hashed_password = Column(String, nullable=False)
 
     recipes = relationship("Recipe", back_populates="owner")
-    suggestions = relationship(
-        "RecipeSuggestion", back_populates="user", cascade="all, delete-orphan"
-    )
+    pantry = relationship("UserIngredient", back_populates="user", cascade="all, delete-orphan")
+    suggestions = relationship("RecipeSuggestion", back_populates="user", cascade="all, delete-orphan")
+
+    def __repr__(self):
+        return f"<User(username='{self.username}', email='{self.email}')>"
+
+
