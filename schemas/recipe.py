@@ -1,31 +1,25 @@
-"""Pydantic models for recipe endpoints."""
-
 from typing import List, Optional
-
 from pydantic import BaseModel
-
-from .ingredient import Ingredient, IngredientCreate
-
+from schemas.recipe_ingredient import RecipeIngredientCreate, RecipeIngredientRead
 
 class RecipeBase(BaseModel):
-    """Common attributes shared by recipe schemas."""
-
     title: str
     description: Optional[str] = None
 
-
 class RecipeCreate(RecipeBase):
-    """Schema for creating a new recipe."""
+    owner_id: int
+    ingredients: List[RecipeIngredientCreate] = []
 
-    ingredients: List[IngredientCreate] = []
-
+class RecipeUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    owner_id: Optional[int] = None
+    ingredients: Optional[List[RecipeIngredientCreate]] = None
 
 class Recipe(RecipeBase):
-    """Schema returned from the API."""
-
     id: int
-    owner_id: Optional[int] = None
-    ingredients: List[Ingredient] = []
+    owner_id: Optional[int]
+    ingredients: List[RecipeIngredientRead] = []
 
     class Config:
-        from_attributes = True
+        orm_mode = True

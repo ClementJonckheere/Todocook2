@@ -1,4 +1,5 @@
 """Utility functions for recipe data access."""
+from __future__ import annotations
 
 from sqlalchemy.orm import Session
 

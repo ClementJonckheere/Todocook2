@@ -7,7 +7,7 @@ from api.deps import get_db
 from ml.recommender import suggest_recipes
 from models.recipe import Recipe as RecipeModel
 from models.recipe_ingredient import RecipeIngredient
-from schemas.recipe import Recipe, RecipeCreate
+from schemas.recipe import Recipe, RecipeCreate, RecipeUpdate
 from schemas.recipe_ingredient import RecipeIngredientCreate, RecipeIngredientRead
 
 router = APIRouter()
@@ -78,3 +78,31 @@ def add_ingredient_to_recipe(recipe_id: int, ingredient: RecipeIngredientCreate,
     db.commit()
     db.refresh(new_ingredient)
     return new_ingredient
+
+
+@router.put("/{recipe_id}", response_model=Recipe)
+def update_recipe(recipe_id: int, recipe: RecipeUpdate, db: Session = Depends(get_db)):
+    db_recipe = db.query(RecipeModel).get(recipe_id)
+    if not db_recipe:
+        raise HTTPException(status_code=404, detail="Recipe not found")
+
+    if recipe.title is not None:
+        db_recipe.title = recipe.title
+    if recipe.description is not None:
+        db_recipe.description = recipe.description
+    if recipe.owner_id is not None:
+        db_recipe.owner_id = recipe.owner_id
+    if recipe.ingredients is not None:
+        db.query(RecipeIngredient).filter_by(recipe_id=recipe_id).delete()
+        for ing in recipe.ingredients:
+            new_ingredient = RecipeIngredient(
+                recipe_id=recipe_id,
+                product_cache_id=ing.product_cache_id,
+                quantity=ing.quantity,
+                unit=ing.unit,
+            )
+            db.add(new_ingredient)
+
+    db.commit()
+    db.refresh(db_recipe)
+    return db_recipe
