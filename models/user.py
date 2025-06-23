@@ -8,11 +8,15 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, index=True, nullable=False)
-    username = Column(String, nullable=False)
+    username = Column(String, nullable=True)
     hashed_password = Column(String, nullable=False)
 
     recipes = relationship("Recipe", back_populates="owner")
-    pantry = relationship("UserIngredient", back_populates="user", cascade="all, delete-orphan")
+    # Use UserInventory for tracking stored products instead of the
+    # undefined ``UserIngredient`` model.
+    inventory = relationship(
+        "UserInventory", back_populates="user", cascade="all, delete-orphan"
+    )
     suggestions = relationship("RecipeSuggestion", back_populates="user", cascade="all, delete-orphan")
 
     def __repr__(self):
