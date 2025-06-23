@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, Float, ForeignKey
 from sqlalchemy.orm import relationship
 
-from db.base import Base
+from db.base_class import Base
 
 
 class RecipeSuggestion(Base):

@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, Float, ForeignKey, Date
-from db.base import Base
+from db.base_class import Base
 import datetime
 
 class ConsumptionLog(Base):

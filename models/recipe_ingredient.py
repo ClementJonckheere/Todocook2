@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, ForeignKey, Float, String
-from db.base import Base
+from sqlalchemy.orm import relationship
+from db.base_class import Base
 
 
 class RecipeIngredient(Base):
@@ -11,3 +12,5 @@ class RecipeIngredient(Base):
 
     quantity = Column(Float, default=1.0, nullable=False)
     unit = Column(String, default="unit", nullable=False)
+
+    recipe = relationship("Recipe", back_populates="ingredients")

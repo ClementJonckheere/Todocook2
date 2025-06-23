@@ -1,10 +1,11 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 
-from db.base import Base
+from db.base_class import Base
 
 # Import model referenced in relationships so SQLAlchemy registers it
 from .recipe_suggestion import RecipeSuggestion  # noqa: F401
+from .recipe_ingredient import RecipeIngredient  # noqa: F401
 
 class Recipe(Base):
     __tablename__ = "recipe"
@@ -16,7 +17,7 @@ class Recipe(Base):
 
     owner = relationship("User", back_populates="recipes")
     ingredients = relationship(
-        "Ingredient", back_populates="recipe", cascade="all, delete-orphan"
+        "RecipeIngredient", back_populates="recipe", cascade="all, delete-orphan"
     )
     suggestions = relationship(
         "RecipeSuggestion", back_populates="recipe", cascade="all, delete-orphan"
