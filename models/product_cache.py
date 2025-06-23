@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Float
-from db.base_class import Base
+from db.base import Base
 
 class ProductCache(Base):
     __tablename__ = "product_cache"

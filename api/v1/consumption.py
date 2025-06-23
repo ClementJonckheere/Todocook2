@@ -1,8 +1,12 @@
-from fastapi import Query
+from fastapi import APIRouter, Depends, Query
+from sqlalchemy.orm import Session
+from db.session import get_db
 from models.consumption_log import ConsumptionLog
 from models.product_cache import ProductCache
 from models.user_product import UserProduct
 import datetime
+
+router = APIRouter()
 
 @router.get("/consumption/stats")
 def get_stats(user_id: int = Query(...), db: Session = Depends(get_db)):

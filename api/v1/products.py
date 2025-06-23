@@ -3,7 +3,7 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from db.session import get_db
-from services.product_search import get_product_by_name
+from utils.product_search import get_product_by_name
 
 router = APIRouter()
 
