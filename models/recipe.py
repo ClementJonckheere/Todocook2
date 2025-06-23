@@ -7,7 +7,7 @@ from db.base import Base
 from .recipe_suggestion import RecipeSuggestion  # noqa: F401
 
 class Recipe(Base):
-    __tablename__ = "recipes"
+    __tablename__ = "recipe"
 
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, index=True, nullable=False)

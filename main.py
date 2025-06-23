@@ -10,7 +10,6 @@ from api.v1 import user_inventory
 
 
 
-
 app = FastAPI(title="Healthy Recipe API")
 
 Base.metadata.create_all(bind=engine)
