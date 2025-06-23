@@ -6,6 +6,8 @@ import RecipesList from './pages/RecipesList.jsx'
 import CreateRecipe from './pages/CreateRecipe'
 import Pantry from './pages/Pantry'
 import Suggestions from './pages/Suggestions'
+import NutritionTracker from './pages/NutritionTracker'; // juste après les autres imports
+
 
 function App() {
     return (
@@ -18,6 +20,8 @@ function App() {
                 <Link to="/create">Create Recipe</Link>
                 <Link to="/pantry">My Pantry</Link>
                 <Link to="/suggestions">Suggestions</Link>
+                <Link to="/nutrition">Nutrition</Link>
+
             </nav>
             <Routes>
                 <Route path="/" element={<h1>Welcome to TodoCook</h1>} />
@@ -27,6 +31,8 @@ function App() {
                 <Route path="/create" element={<CreateRecipe />} />
                 <Route path="/pantry" element={<Pantry />} />
                 <Route path="/suggestions" element={<Suggestions />} />
+                <Route path="/nutrition" element={<NutritionTracker />} />
+
             </Routes>
         </Router>
     )

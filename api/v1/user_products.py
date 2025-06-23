@@ -1,16 +1,10 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
 from db.session import get_db
 from models.user_product import UserProduct
+from schemas.user_product import UserProductCreate
 
 router = APIRouter()
-
-class UserProductCreate(BaseModel):
-    user_id: int
-    name: str
-    brand: str = None
-    calories: float
 
 @router.post("/user-products/")
 def create_user_product(payload: UserProductCreate, db: Session = Depends(get_db)):

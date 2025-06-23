@@ -14,3 +14,4 @@ class UserIngredientCreate(UserIngredientBase):
 class UserIngredient(UserIngredientBase):
     class Config:
         from_attributes = True
+
