@@ -1,15 +1,27 @@
 from typing import List
-
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from api.deps import get_db
+from api.deps import get_db, get_current_user
 from models.user import User as UserModel
-from schemas.user import User, UserCreate
+from schemas.user import User, UserCreate, UserOut
 from utils.security import hash_password
+from crud.nutrition import get_nutrition_stats
+from models.user import User as DBUser
 
 router = APIRouter()
 
+
+# ✅ Cette route DOIT être avant /{user_id}
+@router.get("/profile", response_model=UserOut)
+def read_profile(
+    db: Session = Depends(get_db),
+    current_user: DBUser = Depends(get_current_user)
+):
+    avg, today = get_nutrition_stats(current_user.id, db)
+    current_user.average_daily_calories = avg
+    current_user.today_calories = today
+    return current_user
 
 @router.get("/", response_model=List[User])
 def read_users(db: Session = Depends(get_db)):
@@ -18,14 +30,12 @@ def read_users(db: Session = Depends(get_db)):
 
 @router.post("/", response_model=User)
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
-    # Hash the user password using bcrypt
     hashed = hash_password(user.password)
     db_user = UserModel(email=user.email, username=user.username, hashed_password=hashed)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
     return db_user
-
 
 
 @router.get("/{user_id}", response_model=User)
@@ -56,5 +66,3 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
     db.delete(db_user)
     db.commit()
     return {"ok": True}
-
-

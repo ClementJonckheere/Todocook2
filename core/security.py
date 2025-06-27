@@ -5,6 +5,7 @@ import jwt
 from datetime import datetime
 from typing import Optional
 from core.config import settings
+from passlib.context import CryptContext
 
 def decode_access_token(token: str) -> Optional[dict]:
     try:
@@ -14,3 +15,12 @@ def decode_access_token(token: str) -> Optional[dict]:
         return payload
     except jwt.PyJWTError:
         return None
+
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return pwd_context.verify(plain_password, hashed_password)
+
+def get_password_hash(password: str) -> str:
+    return pwd_context.hash(password)

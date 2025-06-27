@@ -1,0 +1,7 @@
+:root {
+  --font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+
+  --color-primary: #646cff;
+  --color-accent: #535bf2;
+  --font-weight-normal: 400;
+}
