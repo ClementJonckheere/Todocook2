@@ -1,11 +1,11 @@
 """Simple ingredient based recipe recommendation engine."""
 
-from typing import List
-
+from typing import List, Dict
 from sqlalchemy.orm import Session
-
-from models.user import User
 from models.recipe import Recipe
+from models.recipe_ingredient import RecipeIngredient
+from models.user_inventory import UserInventory
+from models.product_cache import ProductCache
 
 
 def _recipe_score(recipe: Recipe, pantry_ids: set[int]) -> float:
@@ -18,22 +18,32 @@ def _recipe_score(recipe: Recipe, pantry_ids: set[int]) -> float:
     return len(recipe_ids & pantry_ids) / len(recipe_ids)
 
 
-def suggest_recipes(user_id: int, db: Session, limit: int = 5) -> List[Recipe]:
-    """Return recipes sorted by ingredient overlap with the user's pantry."""
-
-    user: User | None = db.query(User).get(user_id)
-    if user is None:
-        return []
-
-    pantry_ids = {item.ingredient_id for item in user.pantry}
-    if not pantry_ids:
-        return []
+def suggest_recipes(user_id: int, db: Session, max_missing: int = 2) -> List[Dict]:
+    inventory = db.query(UserInventory).filter(UserInventory.user_id == user_id).all()
+    inventory_ids = {item.product_cache_id for item in inventory if item.product_cache_id}
 
     recipes = db.query(Recipe).all()
-    scored = [
-        (recipe, _recipe_score(recipe, pantry_ids))
-        for recipe in recipes
-    ]
-    scored.sort(key=lambda x: x[1], reverse=True)
+    suggestions = []
 
-    return [recipe for recipe, score in scored if score > 0][:limit]
+    for recipe in recipes:
+        ingredients = db.query(RecipeIngredient).filter(RecipeIngredient.recipe_id == recipe.id).all()
+        required_ids = {ing.product_cache_id for ing in ingredients}
+
+        missing_ids = required_ids - inventory_ids
+        match_score = (len(required_ids) - len(missing_ids)) / len(required_ids) if required_ids else 0.0
+
+        if len(missing_ids) <= max_missing:
+            missing_names = []
+            if missing_ids:
+                missing_products = db.query(ProductCache).filter(ProductCache.id.in_(missing_ids)).all()
+                missing_names = [p.name for p in missing_products]
+
+            suggestions.append({
+                "recipe_id": recipe.id,
+                "title": recipe.title,
+                "match_score": round(match_score, 2),
+                "missing_ingredients": missing_names
+            })
+
+    suggestions.sort(key=lambda x: (-x["match_score"], len(x["missing_ingredients"])))
+    return suggestions

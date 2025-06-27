@@ -9,7 +9,9 @@ from models.recipe import Recipe as RecipeModel
 from models.recipe_ingredient import RecipeIngredient
 from schemas.recipe import Recipe, RecipeCreate, RecipeUpdate
 from schemas.recipe_ingredient import RecipeIngredientCreate, RecipeIngredientRead
-
+from schemas.user import User
+from api.deps import get_db, get_current_user
+from crud.recommender import suggest_recipes
 router = APIRouter()
 
 
@@ -106,3 +108,15 @@ def update_recipe(recipe_id: int, recipe: RecipeUpdate, db: Session = Depends(ge
     db.commit()
     db.refresh(db_recipe)
     return db_recipe
+
+@router.get("/recipes/suggestions", summary="Liste des recettes suggérées en fonction du stock")
+def get_suggestions(
+    max_missing: int = 2,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+) -> List[dict]:
+    """
+    Retourne une liste de recettes suggérées pour l'utilisateur connecté,
+    en fonction de son inventaire actuel. Par défaut, jusqu’à 2 ingrédients manquants.
+    """
+    return suggest_recipes(user_id=current_user.id, db=db, max_missing=max_missing)
