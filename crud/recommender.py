@@ -1,37 +1,39 @@
+from typing import List, Dict
 from sqlalchemy.orm import Session
 from models.recipe import Recipe
 from models.recipe_ingredient import RecipeIngredient
 from models.user_inventory import UserInventory
+from models.product_cache import ProductCache
 
-def get_suggestions_for_user(user_id: int, db: Session, max_missing: int = 0):
-    # Récupérer les produits en stock pour l'utilisateur
-    stock_ids = db.query(UserInventory.product_cache_id).filter(
-        UserInventory.user_id == user_id,
-        UserInventory.product_cache_id.isnot(None)
-    ).distinct()
+def suggest_recipes(user_id: int, db: Session, max_missing: int = 2) -> List[Dict]:
+    # Récupération de l'inventaire utilisateur
+    inventory = db.query(UserInventory).filter(UserInventory.user_id == user_id).all()
+    inventory_ids = {item.product_cache_id for item in inventory if item.product_cache_id}
 
-    stock_set = {row[0] for row in stock_ids}
-
-    # Récupérer toutes les recettes et leurs ingrédients
+    # Préparation des suggestions
     recipes = db.query(Recipe).all()
     suggestions = []
 
     for recipe in recipes:
-        ingredients = db.query(RecipeIngredient.product_cache_id).filter(
-            RecipeIngredient.recipe_id == recipe.id
-        ).all()
+        ingredients = db.query(RecipeIngredient).filter(RecipeIngredient.recipe_id == recipe.id).all()
+        required_ids = {ing.product_cache_id for ing in ingredients}
 
-        ingredient_set = {row[0] for row in ingredients}
-        missing = ingredient_set - stock_set
+        missing_ids = required_ids - inventory_ids
+        match_score = (len(required_ids) - len(missing_ids)) / len(required_ids) if required_ids else 0.0
 
-        if len(missing) <= max_missing:
+        if len(missing_ids) <= max_missing:
+            missing_names = []
+            if missing_ids:
+                missing_products = db.query(ProductCache).filter(ProductCache.id.in_(missing_ids)).all()
+                missing_names = [p.name for p in missing_products]
+
             suggestions.append({
                 "recipe_id": recipe.id,
                 "title": recipe.title,
-                "missing_count": len(missing),
-                "missing": list(missing)
+                "match_score": round(match_score, 2),
+                "missing_ingredients": missing_names
             })
 
-    # Tri par nombre d’ingrédients manquants (les plus proches en premier)
-    suggestions.sort(key=lambda x: x["missing_count"])
+    # Tri par score décroissant, puis par nombre d’ingrédients manquants
+    suggestions.sort(key=lambda x: (-x["match_score"], len(x["missing_ingredients"])))
     return suggestions
