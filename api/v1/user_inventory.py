@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Query, HTTPException, Path
 from sqlalchemy.orm import Session
-from db.session import get_db
+from api.deps import get_db
 from models.user_inventory import UserInventory
 from models.product_cache import ProductCache
 from models.user_product import UserProduct

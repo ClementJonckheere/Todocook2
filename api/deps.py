@@ -4,13 +4,13 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from core.security import decode_access_token
-from core.config import settings
-from db.session import SessionLocal
 from crud.user import get_user
 from models.user import User
+
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 
 def get_db() -> Generator:
+    from db.session import SessionLocal
     db = SessionLocal()
     try:
         yield db

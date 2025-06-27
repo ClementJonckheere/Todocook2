@@ -43,11 +43,14 @@ def search_ingredient(name: str, timeout: int = 10) -> Dict:
     }
     try:
         data = _fetch_json(url, params, timeout)
+        print("📦 Données brutes reçues d’OpenFoodFacts :", json.dumps(data, indent=2))
     except Exception as exc:  # pragma: no cover - network failures
         raise RuntimeError(f"Failed to fetch nutrition data: {exc}")
 
+
     products = data.get("products") or []
     if not products:
+        print("⚠️ Aucun produit trouvé pour :", name)
         return {}
 
     product = products[0]
