@@ -17,11 +17,11 @@ def print_all_fields(ingredient_name: str):
     products = data.get("products", [])
 
     if not products:
-        print("❌ Aucun produit trouvé.")
+        print("Aucun produit trouvé.")
         return
 
     product = products[0]
-    print(f"\n🧾 Premier produit trouvé pour : '{ingredient_name}'\n")
+    print(f"\nPremier produit trouvé pour : '{ingredient_name}'\n")
 
     for key in sorted(product.keys()):
         value = product[key]

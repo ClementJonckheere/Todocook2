@@ -54,6 +54,9 @@ function App() {
           <Route path="/nutrition" element={
             <ProtectedRoute><NutritionTracker /></ProtectedRoute>
           } />
+          <Route path="/scanner" element={
+            <ProtectedRoute><ScannerPage /></ProtectedRoute>
+          } />
         </Routes>
       </main>
 

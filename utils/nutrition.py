@@ -6,6 +6,8 @@ import json
 from pathlib import Path
 from typing import Dict
 
+from api.v1 import products
+
 try:  # pragma: no cover - optional dependency
     import requests
 except Exception:  # pragma: no cover - requests may be unavailable
@@ -47,8 +49,23 @@ def search_ingredient(name: str, timeout: int = 10) -> Dict:
     except Exception as exc:  # pragma: no cover - network failures
         raise RuntimeError(f"Failed to fetch nutrition data: {exc}")
 
-
-    products = data.get("products") or []
+    product = products[0]
+    result = {
+        "name": product.get("product_name", name),
+        "brand": product.get("brands"),
+        "categories": product.get("categories"),
+        "image_url": product.get("image_url"),
+        "nutriments": {
+            "energy": product["nutriments"].get("energy-kcal_100g"),
+            "fat": product["nutriments"].get("fat_100g"),
+            "saturated_fat": product["nutriments"].get("saturated-fat_100g"),
+            "carbohydrates": product["nutriments"].get("carbohydrates_100g"),
+            "sugars": product["nutriments"].get("sugars_100g"),
+            "fiber": product["nutriments"].get("fiber_100g"),
+            "proteins": product["nutriments"].get("proteins_100g"),
+            "salt": product["nutriments"].get("salt_100g"),
+        }
+    }
     if not products:
         print("⚠️ Aucun produit trouvé pour :", name)
         return {}

@@ -28,6 +28,8 @@ function Navbar() {
         <Link to="/pantry" onClick={closeMenu}>Mon garde-manger</Link>
         <Link to="/suggestions" onClick={closeMenu}>Suggestions</Link>
         <Link to="/nutrition" onClick={closeMenu}>Suivi nutritionnel</Link>
+        <Link to="/scanner">Scanner</Link>
+
       </div>
 
       <div className="navbar-actions">
