@@ -2,15 +2,9 @@ import React from "react";
 import { Navigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
-const ProtectedRoute = ({ children }) => {
-  const token = localStorage.getItem("access_token");
+export default function ProtectedRoute({ children }) {
+  // Temporairement, on considère que l'utilisateur est toujours connecté
+  const isLoggedIn = true;
 
-  if (!token) {
-    toast.error("Vous devez être connecté pour accéder à cette page.");
-    return <Navigate to="/login" replace />;
-  }
-
-  return children;
-};
-
-export default ProtectedRoute;
+  return isLoggedIn ? children : <div>Non autorisé (à remplacer plus tard)</div>;
+}

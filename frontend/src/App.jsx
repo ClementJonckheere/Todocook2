@@ -1,15 +1,18 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { ToastContainer } from "react-toastify";
+
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
-import RecipesList from "./components/RecipesList";
-import CreateRecipe from "./pages/CreateRecipe";
 import Pantry from "./pages/Pantry";
-import Suggestions from "./components/Suggestions";
+import CreateRecipe from "./pages/CreateRecipe";
 import NutritionTracker from "./components/NutritionTracker";
 import ProtectedRoute from "./components/ProtectedRoute";
-import Navbar from "./components/Navbar";
-import { ToastContainer } from "react-toastify";
+import BottomNavbar from "./components/Navbar/BottomNavbar";
+import ScannerPage from "./pages/ScannerPage";
+import Profil from "./pages/Profil";
+import Calendar from "./pages/Calendar.jsx"; // ✅ bien importé
+
 import "react-toastify/dist/ReactToastify.css";
 import "./styles/global.css";
 
@@ -30,35 +33,51 @@ function App() {
 
   return (
     <Router>
-      <Navbar theme={theme} setTheme={setTheme} />
-
-      <main style={{ padding: "1rem" }}>
-        <Routes>
-          <Route path="/" element={<h1>Bienvenue sur TodoCook</h1>} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/dashboard" element={
-            <ProtectedRoute><Dashboard /></ProtectedRoute>
-          } />
-          <Route path="/recipes" element={
-            <ProtectedRoute><RecipesList /></ProtectedRoute>
-          } />
-          <Route path="/create" element={
-            <ProtectedRoute><CreateRecipe /></ProtectedRoute>
-          } />
-          <Route path="/pantry" element={
-            <ProtectedRoute><Pantry /></ProtectedRoute>
-          } />
-          <Route path="/suggestions" element={
-            <ProtectedRoute><Suggestions /></ProtectedRoute>
-          } />
-          <Route path="/nutrition" element={
-            <ProtectedRoute><NutritionTracker /></ProtectedRoute>
-          } />
-          <Route path="/scanner" element={
-            <ProtectedRoute><ScannerPage /></ProtectedRoute>
-          } />
-        </Routes>
-      </main>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/" element={
+          <ProtectedRoute>
+            <Dashboard />
+            <BottomNavbar />
+          </ProtectedRoute>
+        } />
+        <Route path="/scanner" element={
+          <ProtectedRoute>
+            <ScannerPage />
+            <BottomNavbar />
+          </ProtectedRoute>
+        } />
+        <Route path="/garde-manger" element={
+          <ProtectedRoute>
+            <Pantry />
+            <BottomNavbar />
+          </ProtectedRoute>
+        } />
+        <Route path="/profil" element={
+          <ProtectedRoute>
+            <Profil />
+            <BottomNavbar />
+          </ProtectedRoute>
+        } />
+        <Route path="/create" element={
+          <ProtectedRoute>
+            <CreateRecipe />
+            <BottomNavbar />
+          </ProtectedRoute>
+        } />
+        <Route path="/nutrition" element={
+          <ProtectedRoute>
+            <NutritionTracker />
+            <BottomNavbar />
+          </ProtectedRoute>
+        } />
+        <Route path="/calendrier" element={
+          <ProtectedRoute>
+            <Calendar />
+            <BottomNavbar />
+          </ProtectedRoute>
+        } />
+      </Routes>
 
       <ToastContainer
         position="top-right"
