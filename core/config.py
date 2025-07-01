@@ -1,6 +1,9 @@
 """Application configuration settings."""
 
-from pydantic_settings import BaseSettings
+try:  # pragma: no cover - optional dependency
+    from pydantic_settings import BaseSettings
+except Exception:  # pragma: no cover - fallback when package missing
+    from pydantic import BaseSettings
 
 class Settings(BaseSettings):
     """Base configuration for the project."""

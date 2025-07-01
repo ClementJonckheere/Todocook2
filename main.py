@@ -26,3 +26,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.get("/test")
+def read_test():
+    """Simple health check endpoint used in tests."""
+    return {"message": "API opérationnelle", "status": "OK"}
