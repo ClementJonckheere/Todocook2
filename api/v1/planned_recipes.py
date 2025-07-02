@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from api.deps import get_db, get_current_user
 from schemas.planned_recipe import PlannedRecipeCreate, PlannedRecipeRead
@@ -6,6 +6,8 @@ from crud.planned_recipe import create_planned_recipe, get_user_planned_recipes_
 from typing import List
 from models.recipe import Recipe
 from models.planned_recipe import PlannedRecipe
+from models.consumption_log import ConsumptionLog
+
 router = APIRouter(prefix="/planned", tags=["planned"])
 
 @router.post("/", response_model=PlannedRecipeRead)
@@ -41,8 +43,6 @@ def delete_planned_recipe(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user)
 ):
-    from models.planned_recipe import PlannedRecipe
-
     plan = db.query(PlannedRecipe).filter(
         PlannedRecipe.id == plan_id,
         PlannedRecipe.user_id == current_user.id
@@ -50,6 +50,21 @@ def delete_planned_recipe(
 
     if not plan:
         raise HTTPException(status_code=404, detail="Planification non trouvée")
+
+    # 🔁 Retirer calories correspondantes
+    recipe = db.query(Recipe).filter(Recipe.id == plan.recipe_id).first()
+    if recipe:
+        log = db.query(ConsumptionLog).filter_by(
+            user_id=current_user.id,
+            date=plan.planned_date
+        ).first()
+
+        if log:
+            log.calories -= recipe.calories
+            if log.calories <= 0:
+                db.delete(log)
+            else:
+                db.add(log)
 
     db.delete(plan)
     db.commit()
