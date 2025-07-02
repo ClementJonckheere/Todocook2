@@ -8,3 +8,4 @@ class ProductCache(Base):
     name = Column(String, index=True)
     calories = Column(Float)
     brand = Column(String, nullable=True)
+    code = Column(String, nullable=True, unique=True)

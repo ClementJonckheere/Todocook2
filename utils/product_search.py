@@ -29,3 +29,13 @@ def get_product_by_name(db: Session, name: str):
 
     # 3. Fallback
     return {"found": False, "message": f"Aucun résultat trouvé pour '{name}'."}
+
+def fetch_product_name_from_api(product_id: int) -> str:
+    try:
+        url = f"https://world.openfoodfacts.org/api/v0/product/{product_id}.json"
+        response = requests.get(url, timeout=3)
+        data = response.json()
+        name = data.get("product", {}).get("product_name_fr")
+        return name or "Produit inconnu"
+    except:
+        return "Produit inconnu"

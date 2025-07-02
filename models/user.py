@@ -18,7 +18,7 @@ class User(Base):
         "UserInventory", back_populates="user", cascade="all, delete-orphan"
     )
     suggestions = relationship("RecipeSuggestion", back_populates="user", cascade="all, delete-orphan")
-
+    planned_recipes = relationship("PlannedRecipe", back_populates="user")
     def __repr__(self):
         return f"<User(username='{self.username}', email='{self.email}')>"
 

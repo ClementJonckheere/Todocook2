@@ -120,3 +120,20 @@ def get_suggestions(
     en fonction de son inventaire actuel. Par défaut, jusqu’à 2 ingrédients manquants.
     """
     return suggest_recipes(user_id=current_user.id, db=db, max_missing=max_missing)
+
+@router.get("/suggestions/")
+def get_recipe_suggestions(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    suggestions = suggest_recipes(db, current_user.id)
+    return [
+        {
+            "recipe_id": r["recipe"].id,
+            "title": r["recipe"].title,
+            "score": r["score"],
+            "missing_products": r["missing"],
+            "available_products": r["available"]
+        }
+        for r in suggestions
+    ]

@@ -7,6 +7,8 @@ from db.base import Base
 from db.session import engine
 from db.base import Base
 from api.v1 import user_inventory
+from api.v1 import planned_recipes
+
 
 
 
@@ -18,6 +20,9 @@ app.include_router(users_router, prefix="/api/v1/users", tags=["Users"])
 app.include_router(recipes_router, prefix="/api/v1/recipes", tags=["Recipes"])
 app.include_router(user_products.router, prefix="/api/v1")
 app.include_router(user_inventory.router, prefix="/api/v1")
+
+app.include_router(planned_recipes.router, prefix="/api/v1/planned", tags=["Planned Recipes"])
+
 
 app.add_middleware(
     CORSMiddleware,

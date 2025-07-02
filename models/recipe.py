@@ -22,3 +22,4 @@ class Recipe(Base):
     suggestions = relationship(
         "RecipeSuggestion", back_populates="recipe", cascade="all, delete-orphan"
     )
+    planned_recipes = relationship("PlannedRecipe", back_populates="recipe")

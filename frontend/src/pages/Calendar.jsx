@@ -1,21 +1,66 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import dayjs from 'dayjs';
 import 'dayjs/locale/fr';
-dayjs.locale('fr');
+import axios from 'axios';
 
-const fakeData = {
-  '2025-06-23': ['Pâtes carbonara', 'Pâtes carbonara'],
-  '2025-06-24': ['Pâtes carbonara', 'Pâtes carbonara'],
-  '2025-06-25': ['Pâtes carbonara', 'Pâtes carbonara'],
-  '2025-06-26': ['Pâtes carbonara'],
-  '2025-06-27': ['Pâtes carbonara', 'Pâtes carbonara'],
-  '2025-06-28': ['Pâtes carbonara'],
-  '2025-06-29': ['Pâtes carbonara']
-};
+dayjs.locale('fr');
 
 const CalendarPage = () => {
   const today = dayjs();
-  const [currentWeek, setCurrentWeek] = useState(today.startOf('week').add(1, 'day')); // Commence le lundi
+  const [currentWeek, setCurrentWeek] = useState(today.startOf('week').add(1, 'day')); // Commence lundi
+  const [plannedRecipes, setPlannedRecipes] = useState({}); // { '2025-07-02': [ { id, title } ] }
+
+  const loadPlannedRecipes = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.get('/api/v1/planned/', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      const grouped = {};
+      res.data.forEach((item) => {
+        const date = dayjs(item.planned_date).format("YYYY-MM-DD");
+        if (!grouped[date]) grouped[date] = [];
+        grouped[date].push({
+          id: item.id,
+          title: item.recipe_title
+        });
+      });
+
+      setPlannedRecipes(grouped);
+    } catch (err) {
+      console.error("Erreur récupération recettes planifiées :", err);
+    }
+  };
+
+  useEffect(() => {
+    loadPlannedRecipes();
+  }, []);
+
+  const handleDelete = async (planId) => {
+    if (!window.confirm("Supprimer cette recette planifiée ?")) return;
+
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`http://localhost:8000/api/v1/planned/${planId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (res.status === 204) {
+        alert("Recette supprimée !");
+        loadPlannedRecipes(); // recharge les données
+      } else {
+        const data = await res.json();
+        alert(data.detail || "Erreur lors de la suppression");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Erreur réseau lors de la suppression");
+    }
+  };
 
   const startOfWeek = currentWeek;
   const days = Array.from({ length: 7 }, (_, i) => startOfWeek.add(i, 'day'));
@@ -51,7 +96,8 @@ const CalendarPage = () => {
       {/* Liste jour par jour */}
       {days.map((day) => {
         const key = day.format('YYYY-MM-DD');
-        const recettes = fakeData[key] || [];
+        const recettes = plannedRecipes[key] || [];
+
         return (
           <div key={key} className="mb-3">
             <h2 className="font-bold text-sm text-gray-700">
@@ -60,7 +106,16 @@ const CalendarPage = () => {
             </h2>
             <ul className="ml-4 list-disc text-sm text-gray-600">
               {recettes.map((recette, i) => (
-                <li key={i}>{recette}</li>
+                <li key={i} className="flex items-center justify-between pr-2">
+                  <span>{recette.title}</span>
+                  <button
+                    onClick={() => handleDelete(recette.id)}
+                    className="text-red-600 text-xs ml-2"
+                    title="Supprimer"
+                  >
+                    🗑️
+                  </button>
+                </li>
               ))}
             </ul>
           </div>
