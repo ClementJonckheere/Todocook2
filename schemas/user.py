@@ -10,6 +10,7 @@ class UserCreate(UserBase):
 
 class User(UserBase):
     id: int
+    calorie_threshold: Optional[float] = 2000
 
     class Config:
         orm_mode = True
@@ -35,6 +36,10 @@ class UserOut(BaseModel):
 
     average_daily_calories: Optional[float] = None
     today_calories: Optional[float] = None
+    calorie_threshold: Optional[float] = 2000
 
     class Config:
         orm_mode = True
+
+class ThresholdUpdate(BaseModel):
+    calorie_threshold: float

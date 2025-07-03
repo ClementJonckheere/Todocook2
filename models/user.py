@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Float
 from sqlalchemy.orm import relationship
 
 from db.base_class import Base
@@ -10,7 +10,7 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     username = Column(String, nullable=True)
     hashed_password = Column(String, nullable=False)
-
+    calorie_threshold = Column(Float, default=2000)
     recipes = relationship("Recipe", back_populates="owner")
     # Use UserInventory for tracking stored products instead of the
     # undefined ``UserIngredient`` model.

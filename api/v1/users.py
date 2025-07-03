@@ -1,5 +1,5 @@
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Body
 from sqlalchemy.orm import Session
 
 from api.deps import get_db, get_current_user
@@ -8,6 +8,7 @@ from schemas.user import User, UserCreate, UserOut
 from utils.security import hash_password
 from crud.nutrition import get_nutrition_stats
 from models.user import User as DBUser
+from schemas.user import ThresholdUpdate
 
 router = APIRouter()
 
@@ -66,3 +67,24 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
     db.delete(db_user)
     db.commit()
     return {"ok": True}
+
+@router.put("/threshold")
+def update_calorie_threshold(
+    threshold: float = Body(...),
+    db: Session = Depends(get_db),
+    current_user: DBUser = Depends(get_current_user)
+):
+    current_user.calorie_threshold = threshold
+    db.commit()
+    db.refresh(current_user)
+    return {"message": "Seuil calorique mis à jour", "threshold": threshold}
+
+@router.put("/{user_id}/threshold")
+def update_threshold(user_id: int, data: ThresholdUpdate, db: Session = Depends(get_db)):
+    user = db.query(UserModel).get(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    user.calorie_threshold = data.calorie_threshold
+    db.commit()
+    db.refresh(user)
+    return {"message": "Seuil mis à jour", "calorie_threshold": user.calorie_threshold}

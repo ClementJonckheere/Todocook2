@@ -1,59 +1,65 @@
-import React from 'react';
-import SearchBar from '../components/SearchBar.jsx';
-import RecipeCard from '../components/RecipeCard.jsx';
-import BottomNavbar from '../components/Navbar/BottomNavbar.jsx';
+import React, { useEffect, useState } from "react";
+import axios from "../api";
 
-export default function Dashboard() {
-  const user = {
-    name: 'Delphine',
-    caloriesToday: 1347,
+const Dashboard = () => {
+  const [profile, setProfile] = useState(null);
+
+  useEffect(() => {
+    axios.get("/users/profile")
+      .then(res => setProfile(res.data))
+      .catch(err => console.error("Erreur chargement profil :", err));
+  }, []);
+
+  if (!profile) return <p className="text-center">Chargement...</p>;
+
+  const seuilDepasse = profile.today_calories > profile.calorie_threshold;
+  const percent = Math.min((profile.today_calories / profile.calorie_threshold) * 100, 150);
+
+  // Détermine la couleur en fonction du % du seuil atteint
+  const getColor = () => {
+    if (percent >= 100) return "bg-red-500";
+    if (percent >= 75) return "bg-orange-400";
+    return "bg-green-500";
   };
 
-  const suggestedRecipes = [
-    { id: 1, title: 'Salade quinoa', calories: 350 },
-    { id: 2, title: 'Wrap au thon', calories: 420 },
-  ];
-
-  const userRecipes = [
-    { id: 101, title: 'Poulet curry', calories: 500 },
-    { id: 102, title: 'Smoothie banane', calories: 200 },
-  ];
-
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100">
-      {/* Header */}
-      <header className="bg-white p-4 shadow-md flex justify-between items-center">
-        <h1 className="text-lg font-semibold">Bonjour, {user.name}</h1>
-        <p className="text-sm text-gray-700">
-          <span className="font-bold">{user.caloriesToday}</span> kcal aujourd’hui
-        </p>
-      </header>
+    <div className="dashboard-container max-w-3xl mx-auto p-6 bg-white rounded-lg shadow">
+      {seuilDepasse && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          🔥 <strong>Attention :</strong> Vous avez dépassé votre seuil de {profile.calorie_threshold} kcal !
+        </div>
+      )}
 
-      {/* Search */}
-      <div className="p-4">
-        <SearchBar placeholder="Rechercher une recette..." />
+      <h2 className="text-2xl font-bold mb-4">👋 Bonjour, {profile.username || profile.email}</h2>
+
+      <div className="grid grid-cols-2 gap-4 mb-6">
+        <div className="p-4 bg-gray-100 rounded shadow">
+          <p className="text-sm text-gray-600">Calories aujourd’hui</p>
+          <p className="text-xl font-semibold text-blue-600">{profile.today_calories} kcal</p>
+        </div>
+        <div className="p-4 bg-gray-100 rounded shadow">
+          <p className="text-sm text-gray-600">Seuil journalier</p>
+          <p className="text-xl font-semibold text-gray-800">{profile.calorie_threshold} kcal</p>
+        </div>
       </div>
 
-      {/* Suggestions */}
-      <section className="px-4">
-        <h2 className="text-md font-bold mb-2 text-gray-800">Suggestions de l’appli</h2>
-        <div className="grid gap-4">
-          {suggestedRecipes.map((recipe) => (
-            <RecipeCard key={recipe.id} title={recipe.title} calories={recipe.calories} />
-          ))}
+      <div className="mb-6">
+        <p className="text-sm mb-1">Progression quotidienne :</p>
+        <div className="w-full h-5 bg-gray-200 rounded-full overflow-hidden">
+          <div
+            className={`${getColor()} h-5 transition-all duration-500`}
+            style={{ width: `${Math.min(percent, 100)}%` }}
+          />
         </div>
-      </section>
+        <p className="text-xs text-gray-500 mt-1">{Math.round(percent)}% du seuil atteint</p>
+      </div>
 
-      {/* Mes recettes */}
-      <section className="px-4 mt-6 mb-24">
-        <h2 className="text-md font-bold mb-2 text-gray-800">Mes recettes</h2>
-        <div className="grid gap-4">
-          {userRecipes.map((recipe) => (
-            <RecipeCard key={recipe.id} title={recipe.title} calories={recipe.calories} />
-          ))}
-        </div>
-      </section>
-
+      {/* Place pour d’autres composants */}
+      <p className="text-center text-sm text-gray-400 mt-8">
+        Dashboard personnalisé – version beta
+      </p>
     </div>
   );
-}
+};
+
+export default Dashboard;
